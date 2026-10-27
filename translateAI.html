@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LinguaAI – Smart Translator</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0A0B14;--ink2:#2D2F45;--ink3:#6B6F8A;--ink4:#A8ACBF;
+  --paper:#F5F6FF;--white:#FFFFFF;--card:#FFFFFF;
+  --border:#E4E6F3;--border2:#CDD0E8;
+  --blue:#4361EE;--blue2:#3A56D4;--blue-soft:#EEF1FD;--blue-glow:rgba(67,97,238,0.18);
+  --green:#10B981;--green-soft:#D1FAE5;--red:#EF4444;--red-soft:#FEE2E2;
+  --amber:#F59E0B;--amber-soft:#FEF3C7;--purple:#7C3AED;--purple-soft:#EDE9FE;--pink:#EC4899;
+  --r:14px;--r-sm:10px;--r-xs:7px;
+  --shadow:0 2px 8px rgba(10,11,20,.06),0 8px 32px rgba(10,11,20,.04);
+  --shadow-up:0 -4px 32px rgba(67,97,238,.08);--shadow-blue:0 4px 24px rgba(67,97,238,.22);
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;background-image:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(67,97,238,.07) 0%,transparent 70%),radial-gradient(ellipse 40% 30% at 90% 60%,rgba(124,58,237,.05) 0%,transparent 60%)}
+h1,h2,h3{font-family:'Syne',sans-serif;letter-spacing:-.02em}
+.header{background:rgba(255,255,255,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--blue),#818CF8);border-radius:11px;display:grid;place-items:center;font-size:19px;box-shadow:var(--shadow-blue);flex-shrink:0}
+.logo-text{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;color:var(--ink);letter-spacing:-.03em}
+.logo-text span{color:var(--blue)}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.dark-btn{background:none;border:1.5px solid var(--border2);border-radius:20px;padding:7px 14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--ink3);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px}
+.dark-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-soft)}
+.api-banner{background:linear-gradient(135deg,rgba(67,97,238,.06),rgba(124,58,237,.04));border-bottom:1px solid rgba(67,97,238,.12);padding:12px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.api-banner-label{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--blue);white-space:nowrap;display:flex;align-items:center;gap:6px}
+.api-input-wrap{flex:1;min-width:220px;position:relative}
+.api-input{width:100%;background:var(--white);border:1.5px solid var(--border2);border-radius:var(--r-sm);font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--ink);padding:9px 38px 9px 12px;outline:none;transition:border-color .15s,box-shadow .15s}
+.api-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-glow)}
+.api-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:14px;color:var(--ink4);padding:2px}
+.api-status{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;white-space:nowrap}
+.api-dot{width:8px;height:8px;border-radius:50%;background:var(--border2);transition:background .3s;flex-shrink:0}
+.api-dot.ok{background:var(--green);box-shadow:0 0 0 3px rgba(16,185,129,.2)}
+.api-dot.err{background:var(--red);box-shadow:0 0 0 3px rgba(239,68,68,.2)}
+.api-link{font-size:12px;color:var(--blue);text-decoration:none;background:var(--blue-soft);padding:5px 10px;border-radius:20px;font-weight:600;white-space:nowrap;transition:all .15s}
+.api-link:hover{background:var(--blue);color:#fff}
+.main{max-width:1100px;margin:0 auto;padding:28px 20px 60px}
+.tab-nav{display:flex;gap:4px;background:var(--white);border:1px solid var(--border);border-radius:40px;padding:5px;width:fit-content;margin-bottom:24px;box-shadow:var(--shadow)}
+.tab{padding:8px 18px;border-radius:30px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:600;color:var(--ink3);cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:7px;white-space:nowrap}
+.tab:hover{color:var(--ink);background:var(--paper)}
+.tab.active{background:var(--blue);color:#fff;box-shadow:var(--shadow-blue)}
+.tab-icon{font-size:15px}
+@media(max-width:600px){.tab{padding:8px 12px;font-size:12.5px;gap:5px}.tab-icon{font-size:13px}}
+.page{display:none;animation:fadeUp .25s ease}
+.page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.lang-bar{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;box-shadow:var(--shadow);margin-bottom:14px}
+.lang-pick{flex:1;display:flex;align-items:center;gap:8px;background:var(--paper);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:9px 12px;position:relative;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.lang-pick:hover{border-color:var(--blue)}
+.lang-pick:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-glow)}
+.lang-pick select{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;-webkit-appearance:none}
+.lp-flag{font-size:22px;flex-shrink:0;line-height:1}
+.lp-info{flex:1;min-width:0}
+.lp-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Syne',sans-serif}
+.lp-sub{font-size:10.5px;color:var(--ink3);font-weight:500}
+.lp-arr{color:var(--ink4);font-size:10px;flex-shrink:0}
+.swap-btn{width:38px;height:38px;border-radius:50%;background:var(--white);border:1.5px solid var(--border2);display:grid;place-items:center;cursor:pointer;font-size:18px;color:var(--ink3);transition:all .22s;flex-shrink:0}
+.swap-btn:hover{border-color:var(--blue);color:var(--blue);transform:rotate(180deg);background:var(--blue-soft)}
+.panels{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:640px){.panels{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow);transition:border-color .2s,box-shadow .2s}
+.panel:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-glow),var(--shadow)}
+.panel-top{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:linear-gradient(to right,rgba(67,97,238,.03),transparent);border-bottom:1px solid var(--border)}
+.panel-lbl{font-size:10.5px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;color:var(--ink3)}
+.panel-acts{display:flex;gap:4px}
+.ib{width:30px;height:30px;border-radius:var(--r-xs);display:grid;place-items:center;border:1px solid var(--border);background:var(--white);cursor:pointer;font-size:13px;color:var(--ink3);transition:all .13s}
+.ib:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-soft)}
+.ib.rec{border-color:var(--red);color:var(--red);background:var(--red-soft);animation:rp 1s infinite}
+@keyframes rp{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.4)}50%{box-shadow:0 0 0 6px rgba(239,68,68,0)}}
+textarea.ta{width:100%;min-height:160px;background:transparent;border:none;outline:none;resize:none;font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.75;color:var(--ink);padding:14px;display:block}
+textarea.ta::placeholder{color:var(--ink4)}
+.out-area{min-height:160px;padding:14px;font-size:15px;line-height:1.75;color:var(--ink);white-space:pre-wrap;word-break:break-word;flex:1}
+.out-ph{color:var(--ink4)}
+.panel-bot{display:flex;align-items:center;justify-content:space-between;padding:7px 14px;background:linear-gradient(to right,rgba(67,97,238,.02),transparent);border-top:1px solid var(--border)}
+.bot-info{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--ink4)}
+.wave{display:flex;align-items:center;gap:2.5px;height:22px}
+.wave b{display:block;width:3px;border-radius:2px;background:var(--blue);opacity:0;animation:wv 1.1s ease-in-out infinite}
+.wave b:nth-child(1){height:40%;animation-delay:0s}.wave b:nth-child(2){height:90%;animation-delay:.1s}.wave b:nth-child(3){height:60%;animation-delay:.2s}.wave b:nth-child(4){height:100%;animation-delay:.3s}.wave b:nth-child(5){height:50%;animation-delay:.2s}.wave b:nth-child(6){height:80%;animation-delay:.1s}
+.wave.on b{opacity:1}
+@keyframes wv{0%,100%{transform:scaleY(.25)}50%{transform:scaleY(1)}}
+.btn-row{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 20px;border-radius:var(--r-sm);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;border:none;outline:none;white-space:nowrap}
+.btn-primary{background:linear-gradient(135deg,var(--blue) 0%,#818CF8 100%);color:#fff;box-shadow:var(--shadow-blue);flex:1;justify-content:center}
+.btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 8px 28px rgba(67,97,238,.38)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-ghost{background:var(--white);border:1.5px solid var(--border2);color:var(--ink2)}
+.btn-ghost:hover:not(:disabled){border-color:var(--blue);color:var(--blue);background:var(--blue-soft)}
+.btn-ghost:disabled{opacity:.5;cursor:not-allowed}
+.btn-purple{background:var(--purple);color:#fff}
+.btn-purple:hover:not(:disabled){background:#6d28d9;transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,58,237,.35)}
+.btn-purple:disabled{opacity:.5;cursor:not-allowed}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover:not(:disabled){background:#059669;transform:translateY(-1px)}
+.quick-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.ql-lbl{font-size:11.5px;color:var(--ink3);font-weight:700;letter-spacing:.5px}
+.ql-btn{background:var(--white);border:1.5px solid var(--border);border-radius:20px;padding:5px 12px;font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:600;color:var(--ink2);cursor:pointer;transition:all .13s}
+.ql-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-soft)}
+.info-box{display:none;align-items:center;gap:8px;padding:10px 14px;border-radius:var(--r-sm);font-size:13px;font-weight:600;margin-bottom:10px}
+.info-box.show{display:flex}
+.det-box{background:var(--green-soft);color:#065F46;border:1px solid #A7F3D0}
+.pronun-box{display:none;flex-direction:column;background:var(--amber-soft);color:#78350F;border:1px solid #FCD34D;border-radius:var(--r-sm);padding:10px 14px;margin-bottom:10px;font-size:13px}
+.pronun-box.show{display:flex}
+.pronun-lbl{font-size:9.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:3px;opacity:.7}
+.pronun-val{font-family:'JetBrains Mono',monospace;font-size:13.5px;font-weight:500}
+.status{display:none;align-items:center;gap:9px;padding:11px 14px;border-radius:var(--r-sm);font-size:13px;font-weight:500;margin-bottom:14px}
+.status.show{display:flex}
+.status.loading{background:var(--blue-soft);color:var(--blue);border:1px solid #C7D2FD}
+.status.success{background:var(--green-soft);color:#059669;border:1px solid #A7F3D0}
+.status.error{background:var(--red-soft);color:var(--red);border:1px solid #FECACA}
+.status.info{background:var(--amber-soft);color:#92400E;border:1px solid #FCD34D}
+.spin{width:14px;height:14px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);margin-bottom:16px}
+.card-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.badge{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:700;font-family:'DM Sans',sans-serif}
+.badge-blue{background:var(--blue-soft);color:var(--blue)}
+.badge-amber{background:var(--amber-soft);color:#92400E}
+.badge-green{background:var(--green-soft);color:#065F46}
+.tts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:14px}
+.tts-field{display:flex;flex-direction:column;gap:5px}
+.tts-lbl{font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink3)}
+.sel{background:var(--paper);border:1.5px solid var(--border);border-radius:var(--r-sm);color:var(--ink);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;padding:8px 11px;outline:none;cursor:pointer;transition:border-color .15s}
+.sel:focus{border-color:var(--blue)}
+.ta-box{width:100%;background:var(--paper);border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);padding:11px 13px;outline:none;resize:vertical;min-height:90px;transition:border-color .15s,box-shadow .15s}
+.ta-box:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-glow)}
+audio{width:100%;height:40px;border-radius:8px;outline:none;display:none;margin-top:10px}
+.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+@media(max-width:600px){.tool-grid{grid-template-columns:1fr}}
+.t-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--shadow)}
+.t-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.t-ico{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-size:17px;flex-shrink:0}
+.t-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:800}
+.t-inp{width:100%;background:var(--paper);border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);padding:8px 11px;outline:none;transition:border-color .15s}
+.t-inp:focus{border-color:var(--blue)}
+.t-res{margin-top:9px;font-size:13px;color:var(--ink2);line-height:1.7;white-space:pre-wrap;min-height:34px}
+.t-res.loading{color:var(--ink4);font-style:italic}
+.t-res.err{color:var(--red)}
+.hist-item{background:var(--card);border:1px solid var(--border);border-radius:var(--r-sm);padding:13px 15px;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:11px;margin-bottom:9px}
+.hist-item:hover{border-color:var(--blue);background:var(--blue-soft);transform:translateX(2px)}
+.hist-langs{font-size:10px;font-weight:800;color:var(--ink3);background:var(--paper);padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0;margin-top:2px}
+.hist-texts{flex:1;min-width:0}
+.hist-src{font-size:13px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist-tgt{font-size:13px;color:var(--blue);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.hist-t{font-size:10.5px;color:var(--ink4);white-space:nowrap;margin-left:auto;flex-shrink:0}
+.hist-empty{text-align:center;padding:50px 20px;color:var(--ink3)}
+.hist-empty-ico{font-size:44px;margin-bottom:12px}
+.hist-empty-txt{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.s-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow)}
+.s-head{padding:14px 18px;background:linear-gradient(to right,rgba(67,97,238,.04),transparent);border-bottom:1px solid var(--border);font-family:'Syne',sans-serif;font-size:14px;font-weight:800;display:flex;align-items:center;gap:8px}
+.s-row{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);gap:14px}
+.s-row:last-child{border-bottom:none}
+.s-lbl{font-size:14px;font-weight:600}
+.s-desc{font-size:11.5px;color:var(--ink3);margin-top:2px}
+.toggle{width:40px;height:22px;background:var(--border2);border-radius:11px;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--green)}
+.toggle::after{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.toggle.on::after{transform:translateX(18px)}
+body.dark{--ink:#E8EAF6;--ink2:#B0B4CC;--ink3:#6B6F8A;--ink4:#3D4166;--paper:#0C0D18;--white:#141627;--card:#161929;--border:#232540;--border2:#2A2D50;--blue-soft:rgba(67,97,238,.15);background-image:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(67,97,238,.1) 0%,transparent 70%),radial-gradient(ellipse 40% 30% at 90% 60%,rgba(124,58,237,.07) 0%,transparent 60%)}
+body.dark .header{background:rgba(20,22,39,.9)}
+body.dark .api-banner{background:linear-gradient(135deg,rgba(67,97,238,.1),rgba(124,58,237,.07))}
+@media(max-width:700px){.header{padding:12px 16px}.api-banner{padding:10px 16px;gap:8px}.main{padding:18px 14px 50px}.btn-row{flex-direction:column}.btn-primary{flex:unset}.lang-bar{gap:6px;padding:8px 10px}.lp-sub{display:none}}
+.warn-count{color:var(--amber) !important}
+.over-count{color:var(--red) !important}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a class="logo" href="#">
+    <div class="logo-icon">🌐</div>
+    <div class="logo-text">Lingua<span>AI</span></div>
+  </a>
+  <div class="header-right">
+    <button class="dark-btn" id="darkBtn" onclick="toggleDark()">🌙 Dark</button>
+  </div>
+</header>
+
+<div class="api-banner">
+  <div class="api-banner-label">🔑 Gemini API Key</div>
+  <div class="api-input-wrap">
+    <input class="api-input" type="password" id="apiInput"
+      placeholder="Paste your Gemini API key here — AIzaSy... or AQ...."
+      oninput="onKeyInput()" autocomplete="off"/>
+    <button class="api-eye" onclick="toggleEye()" id="eyeBtn" title="Show/Hide">👁️</button>
+  </div>
+  <div class="api-status">
+    <div class="api-dot" id="apiDot"></div>
+    <span id="apiTxt">Not set</span>
+  </div>
+  <a class="api-link" href="https://aistudio.google.com/apikey" target="_blank">🔗 Get Free Key</a>
+</div>
+
+<main class="main">
+  <div class="tab-nav" role="tablist">
+    <button class="tab active" onclick="switchTab('translate',this)" role="tab"><span class="tab-icon">⚡</span>Translate</button>
+    <button class="tab" onclick="switchTab('voice',this)" role="tab"><span class="tab-icon">🎙️</span>Voice</button>
+    <button class="tab" onclick="switchTab('tools',this)" role="tab"><span class="tab-icon">🔧</span>Tools</button>
+    <button class="tab" onclick="switchTab('history',this)" role="tab"><span class="tab-icon">🕐</span>History<span id="histBadge" style="background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;margin-left:2px;display:none">0</span></button>
+    <button class="tab" onclick="switchTab('settings',this)" role="tab"><span class="tab-icon">⚙️</span>Settings</button>
+  </div>
+
+  <!-- TRANSLATE PAGE -->
+  <div class="page active" id="page-translate">
+    <div class="lang-bar">
+      <div class="lang-pick">
+        <span class="lp-flag" id="srcFlag">🌐</span>
+        <div class="lp-info"><div class="lp-name" id="srcLangName">Auto Detect</div><div class="lp-sub">Source</div></div>
+        <span class="lp-arr">▾</span>
+        <select id="srcLang" onchange="updateLangUI()">
+          <option value="auto">Auto Detect</option>
+          <option value="English">English</option><option value="Hindi">Hindi</option><option value="Urdu">Urdu</option>
+          <option value="Spanish">Spanish</option><option value="French">French</option><option value="German">German</option>
+          <option value="Italian">Italian</option><option value="Portuguese">Portuguese</option><option value="Russian">Russian</option>
+          <option value="Japanese">Japanese</option><option value="Korean">Korean</option><option value="Chinese">Chinese</option>
+          <option value="Arabic">Arabic</option><option value="Bengali">Bengali</option><option value="Turkish">Turkish</option>
+          <option value="Vietnamese">Vietnamese</option><option value="Tamil">Tamil</option><option value="Punjabi">Punjabi</option>
+          <option value="Marathi">Marathi</option><option value="Gujarati">Gujarati</option>
+        </select>
+      </div>
+      <button class="swap-btn" onclick="swapLangs()" title="Swap languages">⇄</button>
+      <div class="lang-pick">
+        <span class="lp-flag" id="tgtFlag">🇺🇸</span>
+        <div class="lp-info"><div class="lp-name" id="tgtLangName">English</div><div class="lp-sub">Target</div></div>
+        <span class="lp-arr">▾</span>
+        <select id="tgtLang" onchange="updateLangUI()">
+          <option value="English" selected>English</option><option value="Hindi">Hindi</option><option value="Urdu">Urdu</option>
+          <option value="Spanish">Spanish</option><option value="French">French</option><option value="German">German</option>
+          <option value="Italian">Italian</option><option value="Portuguese">Portuguese</option><option value="Russian">Russian</option>
+          <option value="Japanese">Japanese</option><option value="Korean">Korean</option><option value="Chinese">Chinese</option>
+          <option value="Arabic">Arabic</option><option value="Bengali">Bengali</option><option value="Turkish">Turkish</option>
+          <option value="Vietnamese">Vietnamese</option><option value="Tamil">Tamil</option><option value="Punjabi">Punjabi</option>
+          <option value="Marathi">Marathi</option><option value="Gujarati">Gujarati</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="info-box det-box" id="detBox"><span>🔍</span><span id="detText"></span></div>
+
+    <div class="panels">
+      <div class="panel">
+        <div class="panel-top">
+          <span class="panel-lbl">Input Text</span>
+          <div class="panel-acts">
+            <button class="ib" id="micBtn" onclick="toggleMic()" title="Voice input">🎤</button>
+            <button class="ib" onclick="clearInput()" title="Clear">✕</button>
+          </div>
+        </div>
+        <textarea class="ta" id="srcText" placeholder="Type or paste text here…&#10;&#10;💡 Ctrl+Enter to translate quickly" maxlength="5000" oninput="onSrcInput()"></textarea>
+        <div class="panel-bot">
+          <span class="bot-info" id="charInfo">0 / 5000</span>
+          <div class="wave" id="waveEl"><b></b><b></b><b></b><b></b><b></b><b></b></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-top">
+          <span class="panel-lbl">Translation</span>
+          <div class="panel-acts">
+            <button class="ib" onclick="copyOutput()" title="Copy">📋</button>
+            <button class="ib" onclick="readAloud()" title="Read aloud">🔊</button>
+            <button class="ib" onclick="shareOutput()" title="Share">📤</button>
+          </div>
+        </div>
+        <div class="out-area" id="outArea"><span class="out-ph">Your translation will appear here…</span></div>
+        <div class="panel-bot">
+          <span class="bot-info" id="outInfo">&nbsp;</span>
+          <span id="rtlBadge" style="font-size:10px;color:var(--ink3);display:none">RTL ←</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pronun-box" id="pronunBox">
+      <span class="pronun-lbl">Pronunciation Guide</span>
+      <span class="pronun-val" id="pronunVal"></span>
+    </div>
+
+    <div class="status" id="mainStatus"><div class="spin" id="mainSpin"></div><span id="mainMsg"></span></div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btn-normal" onclick="doTranslate('normal')">⚡ Translate</button>
+      <button class="btn btn-ghost" id="btn-explain" onclick="doTranslate('explain')">🧠 Explain</button>
+      <button class="btn btn-ghost" id="btn-formal" onclick="doTranslate('formal')">👔 Formal</button>
+      <button class="btn btn-ghost" id="btn-casual" onclick="doTranslate('casual')">😊 Casual</button>
+      <button class="btn btn-ghost" id="btn-detect" onclick="doDetectLang()">🔍 Detect</button>
+    </div>
+
+    <div class="quick-row">
+      <span class="ql-lbl">Quick →</span>
+      <button class="ql-btn" onclick="setTgt('Hindi')">🇮🇳 Hindi</button>
+      <button class="ql-btn" onclick="setTgt('English')">🇺🇸 English</button>
+      <button class="ql-btn" onclick="setTgt('Urdu')">🇵🇰 Urdu</button>
+      <button class="ql-btn" onclick="setTgt('Spanish')">🇪🇸 Spanish</button>
+      <button class="ql-btn" onclick="setTgt('French')">🇫🇷 French</button>
+      <button class="ql-btn" onclick="setTgt('Japanese')">🇯🇵 Japanese</button>
+      <button class="ql-btn" onclick="setTgt('Arabic')">🇸🇦 Arabic</button>
+      <button class="ql-btn" onclick="setTgt('Chinese')">🇨🇳 Chinese</button>
+    </div>
+  </div>
+
+  <!-- VOICE PAGE -->
+  <div class="page" id="page-voice">
+    <div class="card">
+      <div class="card-title">🔊 Text to Speech <span class="badge badge-green">Always Free • No API Needed</span></div>
+      <label style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Text to Speak</label>
+      <textarea class="ta-box" id="browserTTSText" placeholder="Type text or translate first — auto-fills here…" style="min-height:80px"></textarea>
+      <div class="tts-grid" style="margin-top:12px">
+        <div class="tts-field"><span class="tts-lbl">Language</span>
+          <select class="sel" id="ttsLangSel">
+            <option value="en-US">🇺🇸 English (US)</option><option value="en-GB">🇬🇧 English (UK)</option>
+            <option value="hi-IN">🇮🇳 Hindi</option><option value="ur-PK">🇵🇰 Urdu</option>
+            <option value="es-ES">🇪🇸 Spanish</option><option value="fr-FR">🇫🇷 French</option>
+            <option value="de-DE">🇩🇪 German</option><option value="it-IT">🇮🇹 Italian</option>
+            <option value="pt-BR">🇧🇷 Portuguese</option><option value="ru-RU">🇷🇺 Russian</option>
+            <option value="ja-JP">🇯🇵 Japanese</option><option value="ko-KR">🇰🇷 Korean</option>
+            <option value="zh-CN">🇨🇳 Chinese</option><option value="ar-SA">🇸🇦 Arabic</option>
+            <option value="tr-TR">🇹🇷 Turkish</option><option value="bn-BD">🇧🇩 Bengali</option>
+          </select>
+        </div>
+        <div class="tts-field"><span class="tts-lbl">Rate</span>
+          <select class="sel" id="ttsRate"><option value="0.7">🐢 Slow</option><option value="1" selected>🚶 Normal</option><option value="1.3">🚀 Fast</option><option value="1.6">⚡ Very Fast</option></select>
+        </div>
+        <div class="tts-field"><span class="tts-lbl">Pitch</span>
+          <select class="sel" id="ttsPitch"><option value="0.8">🎵 Low</option><option value="1" selected>🎶 Normal</option><option value="1.3">🎸 High</option></select>
+        </div>
+      </div>
+      <div style="display:flex;gap:9px;margin-top:12px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="speakText()" id="speakBtn">🔊 Speak</button>
+        <button class="btn btn-ghost" onclick="stopSpeech()">⏹ Stop</button>
+      </div>
+      <div style="margin-top:10px;font-size:11.5px;color:var(--ink3)">ℹ️ Uses your browser/device built-in voices. Quality varies by device.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎙️ AI Voice Generation <span class="badge badge-blue">Gemini TTS</span><span class="badge badge-amber">May need billing</span></div>
+      <p style="font-size:13px;color:var(--ink3);margin-bottom:14px;line-height:1.6">Generate premium AI voices using Gemini 2.5 Flash TTS. Note: May require Google Cloud billing.</p>
+      <div class="tts-grid">
+        <div class="tts-field"><span class="tts-lbl">AI Voice</span>
+          <select class="sel" id="aiVoice">
+            <option value="Kore">Kore (Female)</option><option value="Puck">Puck (Male)</option>
+            <option value="Leda">Leda (Female)</option><option value="Orus">Orus (Male)</option>
+            <option value="Aoede">Aoede (Female)</option><option value="Fenrir">Fenrir (Male)</option>
+            <option value="Charon">Charon (Neutral)</option>
+          </select>
+        </div>
+        <div class="tts-field"><span class="tts-lbl">Speed</span>
+          <select class="sel" id="aiSpeed"><option value="slowly">🐢 Slow</option><option value="naturally" selected>🚶 Normal</option><option value="quickly">🚀 Fast</option></select>
+        </div>
+        <div class="tts-field"><span class="tts-lbl">Style</span>
+          <select class="sel" id="aiStyle">
+            <option value="naturally">Natural</option><option value="professionally">Professional</option>
+            <option value="in a friendly warm way">Friendly</option><option value="like a news anchor">News Anchor</option>
+          </select>
+        </div>
+      </div>
+      <label style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.8px;display:block;margin:12px 0 6px">Text for AI Voice</label>
+      <textarea class="ta-box" id="aiTTSText" placeholder="Enter text or translate first…" style="min-height:80px"></textarea>
+      <div style="margin-top:12px;display:flex;gap:9px;flex-wrap:wrap">
+        <button class="btn btn-purple" id="aiTTSBtn" onclick="generateAIVoice()">🎙️ Generate AI Voice</button>
+      </div>
+      <div class="status" id="ttsStatus" style="margin-top:10px"><div class="spin"></div><span id="ttsMsg"></span></div>
+      <audio id="audioEl" controls></audio>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎤 Speech to Text <span class="badge badge-green">Chrome/Edge</span></div>
+      <p style="font-size:13px;color:var(--ink3);margin-bottom:14px;line-height:1.6">Speak into your microphone. Works best in Chrome or Edge.</p>
+      <div style="display:flex;gap:9px;flex-wrap:wrap">
+        <button class="btn btn-ghost" id="sttBtn" onclick="toggleSTT()">🎤 Start Recording</button>
+      </div>
+      <div id="sttOutput" style="margin-top:12px;background:var(--paper);border-radius:var(--r-sm);padding:13px;min-height:55px;font-size:14px;color:var(--ink2);line-height:1.7">Transcript will appear here…</div>
+      <button class="btn btn-ghost" onclick="sendSTTtoTranslate()" style="margin-top:9px;font-size:12.5px;padding:8px 14px">→ Send to Translator</button>
+    </div>
+  </div>
+
+  <!-- TOOLS PAGE -->
+  <div class="page" id="page-tools">
+    <div class="tool-grid">
+      <div class="t-card">
+        <div class="t-head"><div class="t-ico" style="background:var(--blue-soft)">🔍</div><div class="t-name">Language Detector</div></div>
+        <textarea class="t-inp" id="detectIn" style="min-height:70px;resize:vertical" placeholder="Paste text to detect…"></textarea>
+        <button class="btn btn-ghost" style="margin-top:8px;width:100%;justify-content:center;font-size:13px;padding:9px" onclick="toolDetect()">Detect Language</button>
+        <div class="t-res" id="detectOut" style="color:var(--ink4)">Result appears here…</div>
+      </div>
+      <div class="t-card">
+        <div class="t-head"><div class="t-ico" style="background:var(--green-soft)">📝</div><div class="t-name">AI Summarizer</div></div>
+        <textarea class="t-inp" id="sumIn" style="min-height:70px;resize:vertical" placeholder="Paste long text…"></textarea>
+        <button class="btn btn-ghost" style="margin-top:8px;width:100%;justify-content:center;font-size:13px;padding:9px" onclick="toolSummarize()">Summarize</button>
+        <div class="t-res" id="sumOut" style="color:var(--ink4)">Summary appears here…</div>
+      </div>
+      <div class="t-card">
+        <div class="t-head"><div class="t-ico" style="background:var(--amber-soft)">🎭</div><div class="t-name">Tone Changer</div></div>
+        <textarea class="t-inp" id="toneIn" style="min-height:55px;resize:vertical" placeholder="Enter text…"></textarea>
+        <select class="sel" id="toneSel" style="width:100%;margin-top:7px">
+          <option value="professional">Professional</option><option value="casual and friendly">Casual</option>
+          <option value="formal">Formal</option><option value="simple easy-to-understand">Simple</option>
+          <option value="poetic and creative">Poetic</option><option value="humorous">Humorous</option>
+        </select>
+        <button class="btn btn-ghost" style="margin-top:8px;width:100%;justify-content:center;font-size:13px;padding:9px" onclick="toolTone()">Change Tone</button>
+        <div class="t-res" id="toneOut" style="color:var(--ink4)">Result appears here…</div>
+      </div>
+      <div class="t-card">
+        <div class="t-head"><div class="t-ico" style="background:var(--purple-soft)">📚</div><div class="t-name">Word Meaning</div></div>
+        <input class="t-inp" id="wordIn" type="text" placeholder="Enter a word…" onkeydown="if(event.key==='Enter')toolWord()"/>
+        <select class="sel" id="wordLang" style="width:100%;margin-top:7px">
+          <option value="English">English</option><option value="Hindi">Hindi</option>
+          <option value="Spanish">Spanish</option><option value="French">French</option>
+          <option value="German">German</option><option value="Urdu">Urdu</option>
+        </select>
+        <button class="btn btn-ghost" style="margin-top:8px;width:100%;justify-content:center;font-size:13px;padding:9px" onclick="toolWord()">Get Meaning</button>
+        <div class="t-res" id="wordOut" style="color:var(--ink4)">Meaning appears here…</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📖 Phrasebook Generator</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+        <select class="sel" id="phrasecat" style="flex:1;min-width:130px">
+          <option value="greetings">👋 Greetings</option><option value="travel">✈️ Travel</option>
+          <option value="food and dining">🍕 Food & Dining</option><option value="emergency situations">🆘 Emergency</option>
+          <option value="business and professional">💼 Business</option><option value="shopping">🛍️ Shopping</option>
+          <option value="asking for directions">🗺️ Directions</option>
+        </select>
+        <select class="sel" id="phraselang" style="flex:1;min-width:130px">
+          <option value="Hindi">Hindi</option><option value="Spanish">Spanish</option>
+          <option value="French">French</option><option value="Japanese">Japanese</option>
+          <option value="German">German</option><option value="Arabic">Arabic</option>
+          <option value="Italian">Italian</option><option value="Urdu">Urdu</option>
+        </select>
+        <button class="btn btn-primary" style="flex:0" onclick="toolPhrasebook()">Generate</button>
+      </div>
+      <div id="phraseOut" style="font-size:13.5px;color:var(--ink2);line-height:2.2;white-space:pre-wrap;min-height:40px">Choose a category and language, then click Generate.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✅ Grammar Checker</div>
+      <textarea class="ta-box" id="grammarIn" placeholder="Paste text to check grammar…" style="min-height:90px"></textarea>
+      <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+        <select class="sel" id="grammarLang">
+          <option value="English">English</option><option value="Hindi">Hindi</option>
+          <option value="Spanish">Spanish</option><option value="French">French</option>
+        </select>
+        <button class="btn btn-primary" style="flex:1" onclick="toolGrammar()">✅ Check Grammar</button>
+      </div>
+      <div id="grammarOut" style="margin-top:12px;font-size:13.5px;color:var(--ink2);line-height:1.7;white-space:pre-wrap;min-height:40px"></div>
+    </div>
+  </div>
+
+  <!-- HISTORY PAGE -->
+  <div class="page" id="page-history">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+      <div style="font-size:14px;color:var(--ink2)">
+        <strong id="histCount" style="font-family:'Syne',sans-serif;font-size:18px">0</strong>
+        <span style="color:var(--ink3)"> translations saved</span>
+      </div>
+      <button class="btn btn-ghost" style="padding:8px 14px;font-size:13px" onclick="clearHistory()">🗑 Clear All</button>
+    </div>
+    <div id="histList">
+      <div class="hist-empty">
+        <div class="hist-empty-ico">🕐</div>
+        <div class="hist-empty-txt">No history yet</div>
+        <div style="font-size:13px;color:var(--ink4);margin-top:5px">Start translating to see your history!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS PAGE -->
+  <div class="page" id="page-settings">
+    <div class="s-card">
+      <div class="s-head">🎨 Appearance</div>
+      <div class="s-row">
+        <div><div class="s-lbl">Dark Mode</div><div class="s-desc">Switch to dark theme</div></div>
+        <div class="toggle" id="darkToggle" onclick="toggleDark()"></div>
+      </div>
+      <div class="s-row">
+        <div><div class="s-lbl">Auto Translate</div><div class="s-desc">Translate while typing (1.5s pause)</div></div>
+        <div class="toggle on" id="autoToggle" onclick="this.classList.toggle('on');cfg.auto=this.classList.contains('on')"></div>
+      </div>
+    </div>
+    <div class="s-card">
+      <div class="s-head">🌍 Translation</div>
+      <div class="s-row">
+        <div><div class="s-lbl">Pronunciation Guide</div><div class="s-desc">Show romanized pronunciation</div></div>
+        <div class="toggle on" id="pronunToggle" onclick="this.classList.toggle('on');cfg.pronun=this.classList.contains('on')"></div>
+      </div>
+      <div class="s-row">
+        <div><div class="s-lbl">Save History</div><div class="s-desc">Store last 50 translations</div></div>
+        <div class="toggle on" id="histToggle" onclick="this.classList.toggle('on');cfg.hist=this.classList.contains('on')"></div>
+      </div>
+      <div class="s-row">
+        <div><div class="s-lbl">AI Model</div><div class="s-desc">Gemini model for translation</div></div>
+        <select class="sel" id="modelSel">
+          <option value="gemini-2.0-flash">gemini-2.0-flash ✓ Free</option>
+          <option value="gemini-1.5-flash">gemini-1.5-flash ✓ Free</option>
+          <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+        </select>
+      </div>
+    </div>
+    <div class="s-card">
+      <div class="s-head">ℹ️ About</div>
+      <div class="s-row"><div class="s-lbl">Version</div><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink3)">v3.0.0</span></div>
+      <div class="s-row"><div class="s-lbl">API Endpoint</div><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--ink3)">generativelanguage.googleapis.com/v1beta</span></div>
+      <div class="s-row"><div class="s-lbl">Get Free Key</div><a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--blue);font-size:13px;font-weight:600">aistudio.google.com →</a></div>
+    </div>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const key = () => $('apiInput').value.trim();
+const mdl = () => $('modelSel')?.value || 'gemini-2.0-flash';
+const cfg = { auto: true, pronun: true, hist: true };
+let hist = JSON.parse(localStorage.getItem('ling3-hist') || '[]');
+let lastTrans = '';
+let isDark = localStorage.getItem('ling3-dark') === '1';
+let recActive = false, recog = null;
+let sttActive = false, sttRecog = null;
+let autoTmr = null;
+const FLAGS = {auto:'🌐',English:'🇺🇸',Hindi:'🇮🇳',Urdu:'🇵🇰',Spanish:'🇪🇸',French:'🇫🇷',German:'🇩🇪',Italian:'🇮🇹',Portuguese:'🇧🇷',Russian:'🇷🇺',Japanese:'🇯🇵',Korean:'🇰🇷',Chinese:'🇨🇳',Arabic:'🇸🇦',Bengali:'🇧🇩',Turkish:'🇹🇷',Vietnamese:'🇻🇳',Tamil:'🇮🇳',Punjabi:'🇮🇳',Marathi:'🇮🇳',Gujarati:'🇮🇳'};
+const IANA = {English:'en-US',Hindi:'hi-IN',Urdu:'ur-PK',Spanish:'es-ES',French:'fr-FR',German:'de-DE',Italian:'it-IT',Portuguese:'pt-BR',Russian:'ru-RU',Japanese:'ja-JP',Korean:'ko-KR',Chinese:'zh-CN',Arabic:'ar-SA',Bengali:'bn-BD',Turkish:'tr-TR',Vietnamese:'vi-VN',Tamil:'ta-IN',auto:'en-US'};
+const RTL = new Set(['Arabic','Urdu','Hebrew','Persian']);
+const PRONUN_LANGS = new Set(['Japanese','Chinese','Korean','Arabic','Hindi','Russian','Urdu','Tamil','Marathi']);
+const TRANS_BTNS = ['btn-normal','btn-explain','btn-formal','btn-casual','btn-detect'];
+
+window.addEventListener('load', () => {
+  const saved = sessionStorage.getItem('ling3-key');
+  if (saved) $('apiInput').value = saved;
+  $('apiInput').addEventListener('input', onKeyInput);
+  onKeyInput();
+  if (isDark) applyDark();
+  updateLangUI();
+  renderHist();
+  $('srcText').addEventListener('keydown', e => { if ((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();doTranslate('normal');} });
+  $('srcText').addEventListener('input', () => {
+    onSrcInput();
+    if (cfg.auto && key()) { clearTimeout(autoTmr); autoTmr = setTimeout(() => { if ($('srcText').value.trim().length > 3) doTranslate('normal', true); }, 1500); }
+  });
+});
+
+function onKeyInput() {
+  const k = key(); sessionStorage.setItem('ling3-key', k);
+  const ok = (k.startsWith('AIza') || k.startsWith('AQ.')) && k.length > 20;
+  $('apiDot').className = 'api-dot' + (ok ? ' ok' : k.length > 5 ? ' err' : '');
+  $('apiTxt').textContent = ok ? '✓ Key ready' : k.length > 5 ? 'Invalid format' : 'Not set';
+  $('apiTxt').style.color = ok ? 'var(--green)' : k.length > 5 ? 'var(--red)' : '';
+}
+
+function toggleEye() {
+  const inp = $('apiInput');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  $('eyeBtn').textContent = inp.type === 'password' ? '👁️' : '🙈';
+}
+
+function updateLangUI() {
+  const sl = $('srcLang').value, tl = $('tgtLang').value;
+  $('srcFlag').textContent = FLAGS[sl]||'🌐'; $('tgtFlag').textContent = FLAGS[tl]||'🌐';
+  $('srcLangName').textContent = sl==='auto'?'Auto Detect':sl; $('tgtLangName').textContent = tl;
+  const out = $('outArea');
+  if (RTL.has(tl)) { out.style.direction='rtl'; out.style.textAlign='right'; $('rtlBadge').style.display='block'; }
+  else { out.style.direction='ltr'; out.style.textAlign='left'; $('rtlBadge').style.display='none'; }
+}
+
+function setTgt(lang) { $('tgtLang').value=lang; updateLangUI(); if($('srcText').value.trim()&&key()) doTranslate('normal'); }
+function swapLangs() {
+  const sl=$('srcLang'),tl=$('tgtLang'); if(sl.value==='auto')return;
+  [sl.value,tl.value]=[tl.value,sl.value];
+  const s=$('srcText').value,o=$('outArea').innerText;
+  if(!$('outArea').querySelector('.out-ph')){$('srcText').value=o;onSrcInput();$('outArea').textContent=s;$('outInfo').textContent=s.length+' chars';}
+  updateLangUI();
+}
+function onSrcInput() {
+  const len=$('srcText').value.length, inf=$('charInfo');
+  inf.textContent=`${len} / 5000`;
+  inf.className='bot-info'+(len>4500?' over-count':len>4000?' warn-count':'');
+}
+function clearInput() {
+  $('srcText').value='';onSrcInput();
+  $('outArea').innerHTML='<span class="out-ph">Your translation will appear here…</span>';
+  $('outInfo').innerHTML='&nbsp;';$('detBox').classList.remove('show');$('pronunBox').classList.remove('show');lastTrans='';hideStatus('main');
+}
+
+async function callGemini(prompt) {
+  const k=key();
+  if(!k) throw new Error('No API key. Paste your Gemini API key in the blue bar at the top!');
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/${mdl()}:generateContent`;
+  const response=await fetch(url,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-goog-api-key':k},
+    body:JSON.stringify({
+      contents:[{parts:[{text:prompt}]}],
+      generationConfig:{temperature:0.3,maxOutputTokens:2048,topP:0.9}
+    })
+  });
+  if(!response.ok){
+    let errMsg=`HTTP ${response.status}`;
+    try{const e=await response.json();errMsg=e?.error?.message||errMsg;}catch{}
+    if(response.status===400) throw new Error('Bad request. Check your API key.');
+    if(response.status===403) throw new Error('API key invalid. Get a new one at aistudio.google.com/apikey');
+    if(response.status===429) throw new Error('Rate limit hit. Wait a moment and try again.');
+    throw new Error(errMsg);
+  }
+  const data=await response.json();
+  const candidate=data?.candidates?.[0];
+  if(!candidate) throw new Error('No response. Try again.');
+  if(candidate.finishReason==='SAFETY') throw new Error('Content blocked by safety filter.');
+  const text=candidate?.content?.parts?.[0]?.text;
+  if(!text) throw new Error('Empty response. Try again.');
+  return text.trim();
+}
+
+async function doTranslate(mode='normal',silent=false){
+  const txt=$('srcText').value.trim();
+  if(!txt){if(!silent)showStatus('main','Please type or paste text first.','error');return;}
+  const sl=$('srcLang').value,tl=$('tgtLang').value;
+  const srcPart=sl==='auto'?'Detect the source language and':`From ${sl},`;
+  let prompt;
+  if(mode==='explain') prompt=`You are a linguist. For:\n\n"${txt}"\n\nProvide:\n1. **TRANSLATION** to ${tl}\n2. **KEY WORDS** — 3-5 words with meanings\n3. **GRAMMAR NOTE**\n4. **EXAMPLES** — 2 sentences in ${tl}`;
+  else if(mode==='formal') prompt=`${srcPart} translate to ${tl} in formal register. Return ONLY the translation:\n\n${txt}`;
+  else if(mode==='casual') prompt=`${srcPart} translate to ${tl} in casual friendly tone. Return ONLY the translation:\n\n${txt}`;
+  else prompt=`${srcPart} translate to ${tl}. Return ONLY the translated text, nothing else:\n\n${txt}`;
+  if(!silent){disableBtns(true);showStatus('main',mode==='explain'?'Analyzing…':'Translating…','loading');}
+  try{
+    const result=await callGemini(prompt);
+    lastTrans=result;
+    $('outArea').textContent=result;$('outInfo').textContent=`${result.length} chars`;
+    $('browserTTSText').value=result;$('aiTTSText').value=result;
+    if(IANA[tl])$('ttsLangSel').value=IANA[tl];
+    if(sl==='auto'&&mode==='normal')silentDetect(txt);
+    if(cfg.pronun&&mode==='normal'&&PRONUN_LANGS.has(tl))getPronunciation(result,tl);
+    else $('pronunBox').classList.remove('show');
+    if(cfg.hist&&mode!=='explain')addHistory(txt,result,sl,tl);
+    if(!silent)showStatus('main','✓ Translation complete!','success',2500);
+  }catch(err){
+    if(!silent){showStatus('main',err.message,'error');$('outArea').innerHTML=`<span style="color:var(--red);font-size:13px">⚠️ ${esc(err.message)}</span>`;}
+  }finally{if(!silent)disableBtns(false);}
+}
+
+async function doDetectLang(){
+  const txt=$('srcText').value.trim();if(!txt){showStatus('main','Enter text first.','error');return;}
+  disableBtns(true);showStatus('main','Detecting…','loading');
+  try{const r=await callGemini(`Identify this language. Reply ONLY: "Language (X% confidence)"\nText: ${txt}`);$('detBox').classList.add('show');$('detText').textContent='🔍 '+r;showStatus('main','Detected!','success',2000);}
+  catch(e){showStatus('main',e.message,'error');}finally{disableBtns(false);}
+}
+async function silentDetect(txt){try{const r=await callGemini(`What language? Reply ONLY the language name:\n${txt}`);$('detBox').classList.add('show');$('detText').textContent='🔍 Auto-detected: '+r.trim();}catch{}}
+async function getPronunciation(text,lang){try{const r=await callGemini(`Romanized pronunciation of this ${lang} text. Reply ONLY romanization:\n${text}`);if(r){$('pronunBox').classList.add('show');$('pronunVal').textContent=r.trim();}}catch{}}
+
+async function toolDetect(){const t=$('detectIn').value.trim();if(!t)return;$('detectOut').textContent='Detecting…';$('detectOut').className='t-res loading';try{$('detectOut').textContent=await callGemini(`Identify language. Include: name, script, confidence%, region.\nText: ${t}`);$('detectOut').className='t-res';}catch(e){$('detectOut').textContent='⚠️ '+e.message;$('detectOut').className='t-res err';}}
+async function toolSummarize(){const t=$('sumIn').value.trim();if(!t)return;$('sumOut').textContent='Summarizing…';$('sumOut').className='t-res loading';try{$('sumOut').textContent=await callGemini(`Summarize in 2-3 sentences:\n\n${t}`);$('sumOut').className='t-res';}catch(e){$('sumOut').textContent='⚠️ '+e.message;$('sumOut').className='t-res err';}}
+async function toolTone(){const t=$('toneIn').value.trim();if(!t)return;$('toneOut').textContent='Rewriting…';$('toneOut').className='t-res loading';try{$('toneOut').textContent=await callGemini(`Rewrite in ${$('toneSel').value} tone. Same meaning. Return ONLY rewritten text:\n\n${t}`);$('toneOut').className='t-res';}catch(e){$('toneOut').textContent='⚠️ '+e.message;$('toneOut').className='t-res err';}}
+async function toolWord(){const w=$('wordIn').value.trim();if(!w)return;$('wordOut').textContent='Looking up…';$('wordOut').className='t-res loading';try{$('wordOut').textContent=await callGemini(`Define "${w}" in ${$('wordLang').value}. Include: meaning, pronunciation, part of speech, synonyms, 2 examples.`);$('wordOut').className='t-res';}catch(e){$('wordOut').textContent='⚠️ '+e.message;$('wordOut').className='t-res err';}}
+async function toolPhrasebook(){const cat=$('phrasecat').value,lang=$('phraselang').value;$('phraseOut').textContent='Generating…';try{$('phraseOut').textContent=await callGemini(`8 essential ${cat} phrases in ${lang} with English + pronunciation.\nFormat: • [English] → [${lang}] ([pronunciation])`);}catch(e){$('phraseOut').textContent='⚠️ '+e.message;}}
+async function toolGrammar(){const t=$('grammarIn').value.trim();if(!t)return;const lang=$('grammarLang').value;$('grammarOut').textContent='Checking…';try{$('grammarOut').textContent=await callGemini(`Check grammar/spelling of this ${lang} text.\nFormat:\n**Original:** [text]\n**Corrected:** [text]\n**Errors:** [list or "No errors"]\n\nText: ${t}`);}catch(e){$('grammarOut').textContent='⚠️ '+e.message;}}
+
+function ttsSupported(){
+  if(!('speechSynthesis' in window)||typeof SpeechSynthesisUtterance==='undefined'){
+    alert('Text-to-speech is not supported in this viewer. Please open translateAI.html in Chrome or Edge (not inside an app preview).');
+    return false;
+  }
+  return true;
+}
+function speakText(){
+  const txt=$('browserTTSText').value.trim();if(!txt){alert('Enter text to speak.');return;}
+  if(!ttsSupported())return;
+  if(speechSynthesis.speaking){speechSynthesis.cancel();return;}
+  const u=new SpeechSynthesisUtterance(txt);
+  u.lang=$('ttsLangSel').value;u.rate=parseFloat($('ttsRate').value);u.pitch=parseFloat($('ttsPitch').value);
+  u.onstart=()=>{$('speakBtn').textContent='⏹ Stop Speaking';};u.onend=()=>{$('speakBtn').textContent='🔊 Speak';};u.onerror=()=>{$('speakBtn').textContent='🔊 Speak';};
+  speechSynthesis.speak(u);
+}
+function stopSpeech(){if(!('speechSynthesis' in window))return;speechSynthesis.cancel();$('speakBtn').textContent='🔊 Speak';}
+function readAloud(){
+  const txt=$('outArea').innerText;if(!txt||$('outArea').querySelector('.out-ph'))return;
+  if(!ttsSupported())return;
+  if(speechSynthesis.speaking){speechSynthesis.cancel();return;}
+  const u=new SpeechSynthesisUtterance(txt);u.lang=IANA[$('tgtLang').value]||'en-US';
+  speechSynthesis.speak(u);showStatus('main','🔊 Reading aloud…','info',3000);
+}
+
+async function generateAIVoice(){
+  if(!key()){showTTSStatus('Enter API key first.','error');return;}
+  const txt=$('aiTTSText').value.trim();if(!txt){showTTSStatus('Enter text.','error');return;}
+  $('aiTTSBtn').disabled=true;showTTSStatus('Generating AI voice…','loading');
+  try{
+    const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent`;
+    const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key()},body:JSON.stringify({
+      contents:[{parts:[{text:`Speak ${$('aiSpeed').value} and ${$('aiStyle').value}:\n\n${txt}`}]}],
+      generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:$('aiVoice').value}}}}
+    })});
+    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e?.error?.message||`HTTP ${res.status}`);}
+    const data=await res.json();
+    const inlineData=data?.candidates?.[0]?.content?.parts?.[0]?.inlineData;
+    if(!inlineData?.data)throw new Error('No audio. TTS needs billing. Use "Browser Speak" instead (free!).');
+    const wav=pcmToWav(b64ab(inlineData.data),24000,1,16);
+    const url2=URL.createObjectURL(new Blob([wav],{type:'audio/wav'}));
+    $('audioEl').src=url2;$('audioEl').style.display='block';$('audioEl').play();
+    showTTSStatus('✓ Playing!','success',4000);
+  }catch(e){showTTSStatus(e.message,'error');}finally{$('aiTTSBtn').disabled=false;}
+}
+function b64ab(b64){const bin=atob(b64),arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);return arr.buffer;}
+function pcmToWav(buf,sr,ch,bd){
+  const pcm=new Uint8Array(buf),out=new ArrayBuffer(44+pcm.length),v=new DataView(out);
+  const s=(o,str)=>{for(let i=0;i<str.length;i++)v.setUint8(o+i,str.charCodeAt(i))};
+  s(0,'RIFF');v.setUint32(4,36+pcm.length,true);s(8,'WAVE');s(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);
+  v.setUint16(22,ch,true);v.setUint32(24,sr,true);v.setUint32(28,sr*ch*(bd/8),true);v.setUint16(32,ch*(bd/8),true);
+  v.setUint16(34,bd,true);s(36,'data');v.setUint32(40,pcm.length,true);new Uint8Array(out,44).set(pcm);return out;
+}
+
+function toggleMic(){
+  if(!('webkitSpeechRecognition'in window)&&!('SpeechRecognition'in window)){showStatus('main','Needs Chrome/Edge.','error');return;}
+  if(recActive){recog?.stop();return;}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;recog=new SR();recog.interimResults=true;
+  recog.lang=IANA[$('srcLang').value]||'en-US';
+  recog.onstart=()=>{recActive=true;$('micBtn').classList.add('rec');$('micBtn').textContent='⏹';$('waveEl').classList.add('on');showStatus('main','🎤 Listening…','loading');};
+  recog.onresult=e=>{$('srcText').value=Array.from(e.results).map(r=>r[0].transcript).join('');onSrcInput();};
+  recog.onend=()=>{recActive=false;$('micBtn').classList.remove('rec');$('micBtn').textContent='🎤';$('waveEl').classList.remove('on');hideStatus('main');};
+  recog.onerror=e=>{recActive=false;$('micBtn').classList.remove('rec');$('micBtn').textContent='🎤';$('waveEl').classList.remove('on');showStatus('main','Mic error: '+e.error,'error');};
+  recog.start();
+}
+function toggleSTT(){
+  if(!('webkitSpeechRecognition'in window)&&!('SpeechRecognition'in window)){$('sttOutput').textContent='Use Chrome/Edge.';return;}
+  if(sttActive){sttRecog?.stop();return;}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;sttRecog=new SR();sttRecog.interimResults=true;
+  sttRecog.onstart=()=>{sttActive=true;$('sttBtn').textContent='⏹ Stop';$('sttOutput').textContent='🔴 Listening…';};
+  sttRecog.onresult=e=>{$('sttOutput').textContent=Array.from(e.results).map(r=>r[0].transcript).join('');};
+  sttRecog.onend=()=>{sttActive=false;$('sttBtn').textContent='🎤 Start Recording';};
+  sttRecog.start();
+}
+function sendSTTtoTranslate(){
+  const txt=$('sttOutput').textContent;
+  if(!txt||txt==='Transcript will appear here…'||txt==='🔴 Listening…')return;
+  $('srcText').value=txt;onSrcInput();switchTab('translate',document.querySelector('.tab'));if(key())doTranslate('normal');
+}
+
+function copyOutput(){const txt=$('outArea').innerText;if(!txt||$('outArea').querySelector('.out-ph'))return;navigator.clipboard.writeText(txt).then(()=>showStatus('main','✓ Copied!','success',1800));}
+function shareOutput(){const txt=$('outArea').innerText;if(!txt||$('outArea').querySelector('.out-ph'))return;if(navigator.share)navigator.share({text:txt,title:'LinguaAI'});else navigator.clipboard.writeText(txt).then(()=>showStatus('main','✓ Copied!','info',1800));}
+
+function addHistory(src,tgt,sl,tl){
+  hist.unshift({src:src.slice(0,120)+(src.length>120?'…':''),tgt:tgt.slice(0,120)+(tgt.length>120?'…':''),sl,tl,t:new Date().toLocaleTimeString()});
+  if(hist.length>50)hist.pop();localStorage.setItem('ling3-hist',JSON.stringify(hist));renderHist();
+}
+function renderHist(){
+  const badge=$('histBadge');badge.textContent=hist.length;badge.style.display=hist.length>0?'inline':'none';$('histCount').textContent=hist.length;
+  if(!hist.length){$('histList').innerHTML='<div class="hist-empty"><div class="hist-empty-ico">🕐</div><div class="hist-empty-txt">No history yet</div><div style="font-size:13px;color:var(--ink4);margin-top:5px">Start translating!</div></div>';return;}
+  $('histList').innerHTML=hist.map((h,i)=>`<div class="hist-item" onclick="loadHist(${i})"><div class="hist-langs">${FLAGS[h.sl]||'🌐'} ${h.sl==='auto'?'Auto':h.sl} → ${FLAGS[h.tl]||'🌐'} ${h.tl}</div><div class="hist-texts"><div class="hist-src">${esc(h.src)}</div><div class="hist-tgt">${esc(h.tgt)}</div></div><div class="hist-t">${h.t}</div></div>`).join('');
+}
+function loadHist(i){const h=hist[i];$('srcText').value=h.src;onSrcInput();$('outArea').textContent=h.tgt;$('outInfo').textContent=`${h.tgt.length} chars`;lastTrans=h.tgt;$('tgtLang').value=h.tl;if(h.sl!=='auto')$('srcLang').value=h.sl;updateLangUI();switchTab('translate',document.querySelector('.tab'));}
+function clearHistory(){if(!confirm('Clear all history?'))return;hist=[];localStorage.removeItem('ling3-hist');renderHist();}
+
+let mainTimer,ttsTimer;
+function showStatus(scope,msg,type,dur){
+  const el=scope==='main'?$('mainStatus'):$('ttsStatus'),msgEl=scope==='main'?$('mainMsg'):$('ttsMsg'),spinEl=el.querySelector('.spin');
+  clearTimeout(scope==='main'?mainTimer:ttsTimer);el.className='status show '+type;msgEl.textContent=msg;
+  if(spinEl)spinEl.style.display=type==='loading'?'block':'none';
+  if(dur){const t=setTimeout(()=>hideStatus(scope),dur);if(scope==='main')mainTimer=t;else ttsTimer=t;}
+}
+function showTTSStatus(msg,type,dur){showStatus('tts',msg,type,dur);}
+function hideStatus(scope){const el=scope==='main'?$('mainStatus'):$('ttsStatus');if(el)el.className='status';}
+function disableBtns(d){TRANS_BTNS.forEach(id=>{const b=$(id);if(b)b.disabled=d;});}
+
+function switchTab(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  $('page-'+id).classList.add('active');if(btn)btn.classList.add('active');
+  if(id==='voice'&&lastTrans){$('browserTTSText').value=lastTrans;$('aiTTSText').value=lastTrans;}
+}
+
+function toggleDark(){isDark=!isDark;localStorage.setItem('ling3-dark',isDark?'1':'0');isDark?applyDark():removeDark();$('darkBtn').textContent=isDark?'☀️ Light':'🌙 Dark';const dt=$('darkToggle');if(dt)isDark?dt.classList.add('on'):dt.classList.remove('on');}
+function applyDark(){document.body.classList.add('dark');$('darkBtn').textContent='☀️ Light';const dt=$('darkToggle');if(dt)dt.classList.add('on');}
+function removeDark(){document.body.classList.remove('dark');$('darkBtn').textContent='🌙 Dark';const dt=$('darkToggle');if(dt)dt.classList.remove('on');}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+</script>
+</body>
+</html>
